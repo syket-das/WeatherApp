@@ -5,20 +5,29 @@ import * as Location from 'expo-location';
 import { useEffect, useState } from 'react';
 
 import { WEATHER_API_KEY, BASE_WEATHER_URL } from '@env';
+import WeatherInfo from './components/WeatherInfo';
+import UnitsPicker from './components/UnitsPicker';
+import { ActivityIndicator } from 'react-native';
+
+import { colors } from './utils/index';
+import ReloadIcon from './components/ReloadIcon';
+import WeatherDetails from './components/WeatherDetails';
 
 export default function App() {
-  const weather_key = 'df7dad5c67d8b4f30a625623af8c19fd';
-  const base_url = 'api.openweathermap.org/data/2.5/weather?';
+  const weather_key = WEATHER_API_KEY;
+  const base_url = BASE_WEATHER_URL;
   const [errMessage, setErrMessage] = useState(null);
   const [currentWeather, setCurrentWeather] = useState(null);
   const [unitSystem, setUnitSystem] = useState('metric');
 
   useEffect(() => {
     load();
-  }, []);
+  }, [unitSystem]);
 
   // --------------------------------------------------
   async function load() {
+    setCurrentWeather(null);
+    setErrMessage(null);
     try {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
@@ -47,22 +56,32 @@ export default function App() {
   // --------------------------------------------------
 
   if (currentWeather) {
-    const {
-      main: { temp },
-    } = currentWeather;
-
     return (
       <View style={styles.container}>
         <StatusBar style="auto" />
         <View style={styles.main}>
-          <Text>{temp}</Text>
+          <UnitsPicker unitSystem={unitSystem} setUnitSystem={setUnitSystem} />
+          <ReloadIcon load={load} />
+          <WeatherInfo currentWeather={currentWeather} />
         </View>
+        <WeatherDetails
+          currentWeather={currentWeather}
+          unitSystem={unitSystem}
+          setUnitSystem={setUnitSystem}
+        />
+      </View>
+    );
+  } else if (errMessage) {
+    return (
+      <View style={styles.container}>
+        <Text>{errMessage}</Text>
+        <StatusBar style="auto" />
       </View>
     );
   } else {
     return (
       <View style={styles.container}>
-        <Text>{errMessage}</Text>
+        <ActivityIndicator size="large" color={colors.primary} />
         <StatusBar style="auto" />
       </View>
     );
