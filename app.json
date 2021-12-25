@@ -27,6 +27,8 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "description": "A Weather Application ",
+    "githubUrl": "https://github.com/syket-das/WeatherApp"
   }
 }
